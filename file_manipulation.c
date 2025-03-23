@@ -71,6 +71,7 @@ char* get_info(int index){
 }
 
 int get_lines(){
+  // calculate how many line in the file
   FILE *file=fopen("user.csv","a+");
   int count=-1;
   if (file == NULL) {
@@ -87,7 +88,27 @@ int get_lines(){
   return count;
 }
 
-int main(){
-  printf("%d",get_lines());
-  return 0;
+char* get_type(int index){
+  // get the blood type
+  char *x=(char *)malloc(MAX_LINE*sizeof(char));
+  char *type=(char *)malloc(MAX_LINE*sizeof(char));
+  x=get_info(index);
+  if (x==NULL){
+    return '\0';
+  }else{
+    int c=0;
+    x=strtok(x,",");
+    while (x!=NULL)
+    {
+      if(c==2){
+        break;
+      }
+      x=strtok(NULL,",");
+      c++;
+    }
+    
+  }
+  return x;
 }
+
+
