@@ -32,7 +32,6 @@ int check_first_line() {
   if (file == NULL) { // See if the file is empty 
       return 0;
   }
-
   char *first_line=(char *)malloc(MAX_LINE*sizeof(char)); // Dynamic memory alocation
   if (fgets(first_line, MAX_LINE, file)) { // See the first line if it exist we do this treatment bellow ↓
       first_line[strcspn(first_line, "\n")] = '\0';  // Remove the newline
@@ -43,7 +42,6 @@ int check_first_line() {
   fclose(file);
   return 0;
 }
-
 
 char* get_info(int index){
   FILE *file=fopen("user.csv","a+");
@@ -98,17 +96,47 @@ char* get_type(int index){
   }else{
     int c=0;
     x=strtok(x,",");
-    while (x!=NULL)
-    {
-      if(c==2){
-        break;
-      }
-      x=strtok(NULL,",");
-      c++;
-    }
-    
+    x=strtok(NULL,",");
+    x=strtok(NULL,",");
   }
   return x;
 }
 
+char* get_age(int index){
+  // get the blood type
+  char *x=(char *)malloc(MAX_LINE*sizeof(char));
+  char *type=(char *)malloc(MAX_LINE*sizeof(char));
+  x=get_info(index);
+  if (x==NULL){
+    return '\0';
+  }else{
+    int c=0;
+    x=strtok(x,",");
+    x=strtok(NULL,",");
+  }
+  return x;
+}
 
+char* get_name(int index){
+  // get the blood type
+  char *x=(char *)malloc(MAX_LINE*sizeof(char));
+  char *type=(char *)malloc(MAX_LINE*sizeof(char));
+  x=get_info(index);
+  if (x==NULL){
+    return '\0';
+  }else{
+    int c=0;
+    x=strtok(x,",");
+  }
+  return x;
+}
+
+int add_user(char *name,char *age,char *type){
+  FILE *file=fopen("user.csv","a+");
+  if (file == NULL) { // See if the file is empty 
+    return 0;
+  }
+  fprintf(file,"%s,%s,%s\n",name,age,type);
+  fclose(file);
+  return 1;
+}
