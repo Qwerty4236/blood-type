@@ -30,7 +30,7 @@ int valid_age();
 int valid_type();
 
 char *types[8]={"ab+","ab-","a+","a-","b+","b-","o+","o-"};
-char *donnor[][8]={
+char *donnor[8][8]={
   {"ab+", "ab-", "a+", "a-", "b+", "b-", "o+", "o-"},
   {"ab-", "a-", "b-", "o-", NULL, NULL, NULL, NULL},
   {"a+", "a-", "o+", "o-", NULL, NULL, NULL, NULL},
@@ -40,7 +40,7 @@ char *donnor[][8]={
   {"o+", "o-", NULL, NULL, NULL, NULL, NULL, NULL},
   {"o-", NULL, NULL, NULL, NULL, NULL, NULL, NULL}
 };
-char *reciver[][8]={
+char *reciver[8][8]={
   {"ab+",  NULL, NULL, NULL, NULL, NULL, NULL, NULL},
   {"ab+", "ab-", NULL, NULL, NULL, NULL, NULL, NULL},
   {"ab+", "a+", NULL, NULL, NULL, NULL, NULL, NULL},
@@ -94,17 +94,17 @@ int main(){
     }
 
     printf(
-  "+-----+-----------------------+"
-  "\n|  1  | exit                  |"
-  "\n+-----+-----------------------+"
-  "\n|  2  | add user              |"
-  "\n+-----+-----------------------+"
-  "\n|  3  | find a donnor user    |"
-  "\n+-----+-----------------------+"
-  "\n|  4  | find a reciver user   |"
-  "\n+-----+-----------------------+"
-  "\n|  5  | list user             |"
-  "\n+-----+-----------------------+"
+    "+-----+------------------------+"
+  "\n|  1  | sortir du programme    |"
+  "\n+-----+------------------------+"
+  "\n|  2  | ajouter un utilisateur |"
+  "\n+-----+------------------------+"
+  "\n|  3  | trouver un donateur    |"
+  "\n+-----+------------------------+"
+  "\n|  4  | trouver un receveur    |"
+  "\n+-----+------------------------+"
+  "\n|  5  | liste des utilisateurs |"
+  "\n+-----+------------------------+"
   "\n\n>");
 
 
@@ -124,7 +124,7 @@ int main(){
         x[index++]=tolower(c);
       }
       x[index++]='\0';
-      if (strtol(x,&ptr,10)==1 && *ptr=='\0' || strcmp(x,"exit")==0) {free(x);printf("Exiting");Sleep(1000); return 0;}
+      if (strtol(x,&ptr,10)==1 && *ptr=='\0' || strcmp(x,"exit")==0) {free(x);printf("Sortie");Sleep(1000); return 0;}
       else if (strtol(x,&ptr,10)==2  && *ptr=='\0'){
         free(x);
         if(!check_first_line()) make_header();
@@ -143,7 +143,7 @@ int main(){
       }
       else if (strtol(x,&ptr,10)==5  && *ptr=='\0'){
         free(x);
-        if(!check_first_line() || get_lines()==0) {printf("\nno user found\n\n");make_header();break;};
+        if(!check_first_line() || get_lines()==0) {printf("\naucun utilisateur trouver\n\n");make_header();break;};
         list_user();
         break;
       }
@@ -151,6 +151,7 @@ int main(){
   }
   return 0;
 }
+// fontion de condition pour l'ajout des utilisateur
 
 int valid_name(char *s){
   int has_letter = 1;
@@ -176,6 +177,8 @@ int valid_age(char *s){
   return 0;
 }
 
+// vtransformer une chaine de char en chaine de char en miniscule 
+
 char* strlower(char *s){
   for (int i = 0; i < strlen(s); i++)
   {
@@ -198,16 +201,17 @@ int valid_type(char *s){
 
 // main funcs
 
+// ajouter les utilisateur
 int add_user_fun(){
   char name[40],age[40],type[40];
-  char *b=(char*)malloc(40*sizeof(char)); // user input
+  char *b=(char*)malloc(40*sizeof(char)),*endptr; // user input
   if (b == NULL) {
     perror("Memory allocation failed");
     return -1;
   }
   do
   {
-    printf("enter a name> ");
+    printf("enter le nom du patient> ");
     fgets(b, 40, stdin);
     b[strcspn(b, "\n")] = '\0';
   } while (valid_name(b) || strlen(b)>=40); // see if the user type more than 50 char or if the name is valid
@@ -215,30 +219,35 @@ int add_user_fun(){
 
   do
   {
-    printf("enter a age> ");
+    printf("enter l'age du patient> ");
     fgets(b, 40, stdin);
     b[strcspn(b, "\n")] = '\0';
-  } while (valid_age(b) || strlen(b)>=40);strcpy(age,b);
-
+  } while (valid_age(b) || strlen(b)>=40 || strtol(b,&endptr,10)==0);strcpy(age,b);
+  printf(
+    "\n%33s\n"
+    "+-----+-----+-----+-----+-----+-----+-----+-----+\n"
+    "|  o- |  o+ | ab- | ab+ |  a- |  a+ | b-  | b+  |\n"
+    "+-----+-----+-----+-----+-----+-----+-----+-----+\n\n","LES TYPES DE SANG");
   do
   {
-    printf("enter a blood type> ");
+    printf("enter le type de sang du patient> ");
     fgets(b, 40, stdin);
     b[strcspn(b, "\n")] = '\0';
+    strlower(b);
   } while (valid_type(b) || strlen(b)>=40);strcpy(type,b);
 
   free(b);
   int user=add_user(name,age,type);
   if (user==1){
-    printf("user added\n\n");
+    printf("utilisateur ajouter\n\n");
   }else{
     perror("Error\n");
   }
   return user;
 }
-
+// lister les utilisateur
 int list_user(){
-  printf("\n\n%42s\n","USER LIST");
+  printf("\n\n%46s\n","LISTE D'UTILISATEUR");
   for (int i = 0; i < get_lines(); i++)
   {
     printf(
@@ -248,17 +257,18 @@ int list_user(){
   printf("+---------+-----------------------------------------+---------+---------+\n\n");
   Sleep(500);
 }
-
+// trouver les doneur
 int find_donnor(){
   if(!check_first_line() || get_lines()==0) {
     printf("\nno user found\n\n");
     make_header();
     return -1;
   }
+  list_user();
   char *b=(char *)malloc(MAX_LINE*sizeof(char)),*endptr,*type;
   int pos,index,count=0;
   do{
-    printf("enter the user id> ");
+    printf("enter l'id de l'utilisateur> ");
     fgets(b, 40, stdin);
     b[strcspn(b,"\n")]='\0';
     pos=(int)strtol(b,&endptr,10);
@@ -270,7 +280,7 @@ int find_donnor(){
       break;
     }
   }
-  printf("\n\n%42s\n","DONNER LIST");
+  printf("\n\n%43s\n","LISTE DES DONNEUR");
   for (int i = 0; i < get_lines(); i++){
     if(pos==i){
       continue;
@@ -291,25 +301,26 @@ int find_donnor(){
     printf("+---------+-----------------------------------------+---------+---------+\n\n");
   }else{
     printf(
-      "+---------+-----------------------------------------+---------+---------+\n"
-      "+                             NO USER FOUND                             +\n"
-      "+---------+-----------------------------------------+---------+---------+\n\n"
+      "+-----------------------------------------------------------------------+\n"
+      "+                       AUCUN UTILISATEUR TROUVER                       +\n"
+      "+-----------------------------------------------------------------------+\n\n"
     );
   }
   Sleep(1000);
   return 0;
 }
-
+// trouver les receveur
 int find_reciver(){
   if(!check_first_line() || get_lines()==0) {
     printf("\nno user found\n\n");
     make_header();
     return -1;
   }
+  list_user();
   char *b=(char *)malloc(MAX_LINE*sizeof(char)),*endptr,*type;
   int pos,index,count=0;
   do{
-    printf("enter the user id> ");
+    printf("enter l'id de l'utilisateur> ");
     fgets(b, 40, stdin);
     b[strcspn(b,"\n")]='\0';
     pos=(int)strtol(b,&endptr,10);
@@ -321,7 +332,7 @@ int find_reciver(){
       break;
     }
   }
-  printf("\n\n%42s\n","DONNER LIST");
+  printf("\n\n%45s\n","LISTE DES RECEVEUR");
   for (int i = 0; i < get_lines(); i++){
     if(pos==i){
       continue;
@@ -342,9 +353,9 @@ int find_reciver(){
     printf("+---------+-----------------------------------------+---------+---------+\n\n");
   }else{
     printf(
-      "+---------+-----------------------------------------+---------+---------+\n"
-      "+                             NO USER FOUND                             +\n"
-      "+---------+-----------------------------------------+---------+---------+\n\n"
+      "+-----------------------------------------------------------------------+\n"
+      "+                       AUCUN UTILISATEUR TROUVER                       +\n"
+      "+-----------------------------------------------------------------------+\n\n"
     );
   }
   Sleep(1000);
